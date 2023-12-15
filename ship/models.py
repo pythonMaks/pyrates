@@ -1,3 +1,16 @@
+# models.py
 from django.db import models
 
-# Create your models here.
+class Ship(models.Model):
+    x = models.FloatField(default=0)
+    y = models.FloatField(default=0)
+    speed = models.FloatField(default=0)
+    direction = models.FloatField(default=0)
+
+    def move(self, angle, speed):
+        # Добавим здесь логику движения корабля
+        pass
+
+    def scan(self, scan_angle):
+        # Добавим здесь логику сканирования
+        pass
