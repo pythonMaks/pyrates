@@ -1,6 +1,7 @@
 # models.py
 from django.db import models
 
+
 class Ship(models.Model):
     x = models.FloatField(default=0)
     y = models.FloatField(default=0)
@@ -8,7 +9,6 @@ class Ship(models.Model):
     direction = models.FloatField(default=0)
 
     def move(self, angle, speed):
-        # Добавим здесь логику движения корабля
         pass
 
     def scan(self, scan_angle):
