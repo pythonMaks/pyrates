@@ -17,7 +17,7 @@ class Ship(models.Model):
         now = timezone.now()
         time_elapsed = (now - self.last_update).total_seconds()
 
-        print(f"Время, прошедшее с последнего обновления: {time_elapsed} секунд")
+        print(f"{self.id}Время, прошедшее с последнего обновления: {time_elapsed} секунд")
         print(f"Текущая скорость: {self.speed}, текущее направление: {self.direction}")
 
         if self.speed > 0:
@@ -28,9 +28,9 @@ class Ship(models.Model):
             self.x += round(distance_moved * math.cos(radian_direction), 10)  # Округление до 10 десятичных знаков
             self.y += round(distance_moved * math.sin(radian_direction), 10)
             print(f"Новые координаты: x = {self.x}, y = {self.y}")
-
+        self.save()
         
-        print(f"Обновленное время последнего обновления: {self.last_update}")
+
 
     def move(self, new_angle, new_speed):
         print(f"Изменение скорости и направления: скорость = {new_speed}, направление = {new_angle}")

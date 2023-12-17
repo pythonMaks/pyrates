@@ -7,6 +7,13 @@ from rest_framework.response import Response
 class ShipViewSet(viewsets.ModelViewSet):
     queryset = Ship.objects.all()
     serializer_class = ShipSerializer
+    def list(self, request, *args, **kwargs):
+        # Обновляем позицию каждого корабля перед получением списка
+        for ship in self.queryset:
+            ship.update_position()
+            print(ship.x, ship.y)
+        self.queryset = Ship.objects.all()
+        return super(ShipViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
