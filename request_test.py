@@ -1,7 +1,7 @@
 import requests
 import time
 BASE_URL = "http://localhost:8000/ships/"  # Предполагаем, что ваш сервер запущен локально
-SHIP_ID = 8
+SHIP_ID = 11
 # Пример идентификатора корабля
 
 def get_ship_data(ship_id):
@@ -24,7 +24,7 @@ def update_ship_data(ship_id, speed, direction):
 # Пример использования
 print("Текущие данные корабля:", get_ship_data(SHIP_ID))
 print("Обновляем данные корабля...")
-updated_data = update_ship_data(SHIP_ID, speed=0, direction=0)
+updated_data = update_ship_data(SHIP_ID, speed=0, direction=180)
 print("Обновленные данные корабля:", updated_data)
 print("Ожидаем 5 секунд..")
 time.sleep(5)

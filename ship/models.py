@@ -12,31 +12,39 @@ class Ship(models.Model):
     direction = models.FloatField(default=0)  # Направление в градусах
     last_update = models.DateTimeField(default=timezone.now)
     
-    def update_position(self, new_speed=None, new_direction=None):
+
+    def update_position(self):
         now = timezone.now()
         time_elapsed = (now - self.last_update).total_seconds()
-        if self.speed == 0 and (new_speed is None or new_speed == 0):
-            self.last_update = now
-            return
-        # Вычисление движения на основе текущей скорости и направления
-        radian_direction = math.radians(self.direction)
-        distance_moved = time_elapsed * self.speed
-        self.x += distance_moved * math.cos(radian_direction)
-        self.y += distance_moved * math.sin(radian_direction)
 
-        # Обновляем last_update и параметры движения
-        self.last_update = now
-        if new_speed is not None:
-            self.speed = new_speed
-        if new_direction is not None:
-            self.direction = new_direction
+        print(f"Время, прошедшее с последнего обновления: {time_elapsed} секунд")
+        print(f"Текущая скорость: {self.speed}, текущее направление: {self.direction}")
+
+        if self.speed > 0:
+            radian_direction = math.radians(self.direction)
+            distance_moved = time_elapsed * self.speed
+            print(f"Пройденное расстояние: {distance_moved}")
+
+            self.x += round(distance_moved * math.cos(radian_direction), 10)  # Округление до 10 десятичных знаков
+            self.y += round(distance_moved * math.sin(radian_direction), 10)
+            print(f"Новые координаты: x = {self.x}, y = {self.y}")
+
+        
+        print(f"Обновленное время последнего обновления: {self.last_update}")
 
     def move(self, new_angle, new_speed):
-        # Сначала обновляем позицию с текущими параметрами
-        self.update_position(new_speed=new_speed, new_direction=new_angle)
+        print(f"Изменение скорости и направления: скорость = {new_speed}, направление = {new_angle}")
 
+        # Обновляем позицию с текущими параметрами
+        self.update_position()
+
+        # Затем обновляем скорость и направление
+        self.speed = new_speed
+        self.direction = new_angle
+        self.last_update = timezone.now()
         # Сохраняем изменения
         self.save()
+
 
     def scan(self, scan_angle):
         # Добавим здесь логику сканирования
