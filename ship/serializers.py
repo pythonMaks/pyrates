@@ -5,4 +5,4 @@ from .models import Ship
 class ShipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ship
-        fields = ['id', 'x', 'y', 'speed', 'direction', 'length', "width"]
+        fields = ['id', 'x', 'y', 'speed', 'direction', 'length', "width", 'health']

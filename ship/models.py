@@ -11,13 +11,12 @@ class Ship(models.Model):
     speed = models.FloatField(default=0)  # Скорость в м/с
     direction = models.FloatField(default=0)  # Направление в градусах
     last_update = models.DateTimeField(default=timezone.now)
-    
+    health = models.IntegerField(default=100)
 
     def update_position(self):
         now = timezone.now()
         time_elapsed = (now - self.last_update).total_seconds()
-
-        print(f"{self.id}Время, прошедшее с последнего обновления: {time_elapsed} секунд")
+       
         print(f"Текущая скорость: {self.speed}, текущее направление: {self.direction}")
 
         if self.speed > 0:
@@ -28,7 +27,7 @@ class Ship(models.Model):
             self.x += round(distance_moved * math.cos(radian_direction), 10)  # Округление до 10 десятичных знаков
             self.y += round(distance_moved * math.sin(radian_direction), 10)
             print(f"Новые координаты: x = {self.x}, y = {self.y}")
-        self.save()
+        
         
 
 
@@ -51,7 +50,42 @@ class Ship(models.Model):
         pass
 
 
-    # def save(self, *args, **kwargs):
-    #     # Вызываем update_position без принудительного обновления
-    #     self.update_position()
-    #     super().save(*args, **kwargs)  
+    def shoot(self, power, vertical_angle):
+        # Обновляем позицию стреляющего корабля
+        self.update_position()
+
+        # Рассчитываем скорость и координаты попадания снаряда
+        radian_direction = math.radians(self.direction)
+        radian_vertical = math.radians(vertical_angle)
+        speed_x = power * math.cos(radian_vertical) * math.cos(radian_direction)
+        speed_y = power * math.cos(radian_vertical) * math.sin(radian_direction)
+        impact_x = self.x + speed_x
+        impact_y = self.y + speed_y
+
+        # Инициализация переменной hit
+        hit = False
+        # Проверяем попадание по другим кораблям
+        for target_ship in Ship.objects.exclude(id=self.id):
+            target_ship.update_position()  # Обновляем позицию каждого корабля перед проверкой попадания
+            if self._is_hit(target_ship, impact_x, impact_y):
+                # Наносим урон кораблю
+                target_ship.health -= 50  # Например, снаряд наносит 50 урона
+                target_ship.save()
+                hit = True  # Записываем факт попадания
+                break  # Останавливаем проверку после первого попадания
+
+        return {
+            'hit': hit,  # Было ли попадание
+            'impact_x': impact_x,  # Координата X точки попадания
+            'impact_y': impact_y  # Координата Y точки попадания
+        }
+
+
+    def _is_hit(self, target_ship, impact_x, impact_y):
+        # Проверяем, находится ли точка попадания в пределах корабля
+        ship_left = target_ship.x - target_ship.width / 2
+        ship_right = target_ship.x + target_ship.width / 2
+        ship_top = target_ship.y - target_ship.length / 2
+        ship_bottom = target_ship.y + target_ship.length / 2
+
+        return (ship_left <= impact_x <= ship_right) and (ship_top <= impact_y <= ship_bottom)

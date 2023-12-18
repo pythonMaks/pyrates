@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function drawShip(ship, centralShip) {
         // Вычисляем относительные координаты относительно центрального корабля
         const relativeX = canvas.width / 2 + (ship.x - centralShip.x) * scale;
-        const relativeY = canvas.height / 2 + (ship.y - centralShip.y) * scale;
+        const relativeY = canvas.height / 2 - (ship.y - centralShip.y) * scale; // инвертируем Y для соответствия канвасу
     
         // Проверяем, находится ли корабль в пределах холста
         if (relativeX + ship.width / 2 < 0 || relativeX - ship.width / 2 > canvas.width ||
@@ -52,20 +52,26 @@ document.addEventListener("DOMContentLoaded", function() {
     
         ctx.save();
         ctx.translate(relativeX, relativeY);
-        const canvasAngle = Math.PI / 2 - ship.direction * Math.PI / 180;
+    
+        // Поворачиваем корабль в соответствии с его направлением
+        // Угол поворота для canvas должен быть пересчитан, так как 0 градусов соответствует направлению на "восток"
+        let canvasAngle = (-ship.direction) * Math.PI / 180; // Преобразуем градусы в радианы и корректируем угол
         ctx.rotate(canvasAngle);
     
+        // Рисуем корабль
         ctx.fillStyle = ship.id === centralShip.id ? 'red' : 'navy'; // Центральный корабль выделяем цветом
         ctx.fillRect(-ship.width / 2, -ship.length / 2, ship.width, ship.length);
     
         ctx.restore();
     }
     
+    
+    
 
     function drawText() {
         const centralShip = ships.find(ship => ship.id === centralShipId);
         if (centralShip) {
-            const text = `ID: ${centralShip.id}, X: ${centralShip.x.toFixed(2)}, Y: ${centralShip.y.toFixed(2)}, Скорость: ${centralShip.speed}, Направление: ${centralShip.direction.toFixed(2)}`;
+            const text = `ID: ${centralShip.id}, X: ${centralShip.x.toFixed(2)}, Y: ${centralShip.y.toFixed(2)}, Скорость: ${centralShip.speed}, Направление: ${centralShip.direction.toFixed(2)}, HP ${centralShip.health.toFixed(2)} `;
             ctx.fillStyle = 'black';
             ctx.font = '16px Arial';
             ctx.fillText(text, 10, 20);
