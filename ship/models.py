@@ -89,8 +89,7 @@ class Ship(models.Model):
         self.oxygen -= time_elapsed
         self.save()
 
-    def
-        (self, planet):
+    def (self, planet):
         if self._is_near(planet):
             self.food += planet.food
             self.water += planet.water
