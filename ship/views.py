@@ -74,3 +74,22 @@ class ShipViewSet(viewsets.ModelViewSet):
     
 def index(request):
     return render(request, 'ship/index.html')
+
+
+from .models import Planet
+from .serializers import PlanetSerializer  # Предполагается, что вы создали соответствующий сериализатор
+
+class PlanetViewSet(viewsets.ModelViewSet):
+    queryset = Planet.objects.all()
+    serializer_class = PlanetSerializer
+
+    def create(self, request, *args, **kwargs):
+        num_planets = int(request.data.get('num_planets', 1))
+        for _ in range(num_planets):
+            Planet.objects.create()
+        return Response({'status': 'Planets created'}, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

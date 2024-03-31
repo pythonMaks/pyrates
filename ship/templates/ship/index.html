@@ -77,7 +77,44 @@
     }
     
     
-    
+    let planets = [];
+
+async function getAllPlanets() {
+    try {
+        const response = await fetch("http://localhost:8000/planets/");
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+        planets = await response.json();
+        console.log("Received planet data:", planets);
+    } catch (error) {
+        console.error("Error while fetching planet data:", error);
+        planets = [];
+    }
+}
+
+function drawPlanet(planet, centralShip) {
+    const relativeX = canvas.width / 2 + (planet.x - centralShip.x) * scale;
+    const relativeY = canvas.height / 2 - (planet.y - centralShip.y) * scale;
+
+    if (relativeX < 0 || relativeX > canvas.width || relativeY < 0 || relativeY > canvas.height) {
+        return;
+    }
+
+    ctx.save();
+    ctx.translate(relativeX, relativeY);
+
+    ctx.fillStyle = 'green';
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = 'black';
+    ctx.font = '12px Arial';
+    ctx.fillText(`Food: ${planet.food.toFixed(2)}, Water: ${planet.water.toFixed(2)}, Fuel: ${planet.fuel.toFixed(2)}, Oxygen: ${planet.oxygen.toFixed(2)}`, -50, -20);
+
+    ctx.restore();
+}
 
     function drawText() {
         const centralShip = ships.find(ship => ship.id === centralShipId);
@@ -89,22 +126,29 @@
         }
     }
 
-    function update() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+function update() {
+    drawText();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const centralShip = ships.find(ship => ship.id === centralShipId);
-        if (centralShip) {
-            ships.forEach(ship => {
-                drawShip(ship, centralShip);
-            });
-        }
-
-        drawText(); // Обновляем текст
-        requestAnimationFrame(update);
+    const centralShip = ships.find(ship => ship.id === centralShipId);
+    if (centralShip) {
+        ships.forEach(ship => {
+            drawShip(ship, centralShip);
+        });
+        planets.forEach(planet => {
+            drawPlanet(planet, centralShip);
+        });
     }
 
-    setInterval(getAllShips, 1000); // Запрашиваем данные всех кораблей каждую секунду
-    update();
+    
+    requestAnimationFrame(update);
+}
+
+setInterval(getAllShips, 1000);
+setInterval(getAllPlanets, 1000);
+update();
 });
+
+
 
 </script>

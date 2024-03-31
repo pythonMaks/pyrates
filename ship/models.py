@@ -1,7 +1,10 @@
 # models.py
-from django.db import models
-from django.utils import  timezone
 import math
+import random
+
+from django.db import models
+from django.utils import timezone
+
 
 class Ship(models.Model):
     x = models.FloatField(default=0)  # X координата центра корабля
@@ -12,11 +15,15 @@ class Ship(models.Model):
     direction = models.FloatField(default=0)  # Направление в градусах
     last_update = models.DateTimeField(default=timezone.now)
     health = models.IntegerField(default=100)
+    food = models.FloatField(default=100)  # Еда на корабле
+    water = models.FloatField(default=100)  # Вода на корабле
+    fuel = models.FloatField(default=100)  # Топливо на корабле
+    oxygen = models.FloatField(default=100)  # Кислород на корабле
 
     def update_position(self):
         now = timezone.now()
         time_elapsed = (now - self.last_update).total_seconds()
-       
+        self.consume_resources(time_elapsed)
         print(f"Текущая скорость: {self.speed}, текущее направление: {self.direction}")
 
         if self.speed > 0:
@@ -27,9 +34,6 @@ class Ship(models.Model):
             self.x += round(distance_moved * math.cos(radian_direction), 10)  # Округление до 10 десятичных знаков
             self.y += round(distance_moved * math.sin(radian_direction), 10)
             print(f"Новые координаты: x = {self.x}, y = {self.y}")
-        
-        
-
 
     def move(self, new_angle, new_speed):
         print(f"Изменение скорости и направления: скорость = {new_speed}, направление = {new_angle}")
@@ -44,11 +48,9 @@ class Ship(models.Model):
         # Сохраняем изменения
         self.save()
 
-
     def scan(self, scan_angle):
         # Добавим здесь логику сканирования
         pass
-
 
     def shoot(self, power, vertical_angle):
         # Обновляем позицию стреляющего корабля
@@ -80,6 +82,33 @@ class Ship(models.Model):
             'impact_y': impact_y  # Координата Y точки попадания
         }
 
+    def consume_resources(self, time_elapsed):
+        self.food -= time_elapsed
+        self.water -= time_elapsed
+        self.fuel -= time_elapsed
+        self.oxygen -= time_elapsed
+        self.save()
+
+    def
+        (self, planet):
+        if self._is_near(planet):
+            self.food += planet.food
+            self.water += planet.water
+            self.fuel += planet.fuel
+            self.oxygen += planet.oxygen
+            self.save()
+
+            # Обнуляем ресурсы на планете
+            planet.food = 0
+            planet.water = 0
+            planet.fuel = 0
+            planet.oxygen = 0
+            planet.save()
+
+    def _is_near(self, planet):
+        distance = math.sqrt((self.x - planet.x) ** 2 + (self.y - planet.y) ** 2)
+        return distance < 1  # Например, считаем, что корабль рядом, если расстояние меньше 1
+
 
     def _is_hit(self, target_ship, impact_x, impact_y):
         # Проверяем, находится ли точка попадания в пределах корабля
@@ -89,3 +118,17 @@ class Ship(models.Model):
         ship_bottom = target_ship.y + target_ship.length / 2
 
         return (ship_left <= impact_x <= ship_right) and (ship_top <= impact_y <= ship_bottom)
+
+
+class RandomFloatField(models.FloatField):
+    def pre_save(self, model_instance, add):
+        return random.uniform(0, 100)
+
+
+class Planet(models.Model):
+    x = RandomFloatField(default=0)  # X координата планеты
+    y = RandomFloatField(default=0)  # Y координата планеты
+    food = RandomFloatField(default=0)  # Еда на планете
+    water = RandomFloatField(default=0)  # Вода на планете
+    fuel = RandomFloatField(default=0)  # Топливо на планете
+    oxygen = RandomFloatField(default=0)  # Кислород на планете
